@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Weihnachtlicher Adventskalender</title>
+  <style>
+    :root {
+      --gold: #ffd54f;
+      --dark-red: #8b0000;
+      --pine: #1b5e20;
+      --snow: #f9f9ff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem 3rem;
+      background:
+        radial-gradient(circle at top, #ffe082 0, #ffcc80 18%, #e53935 50%, #1a237e 100%);
+      color: #fff;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+
+    h1 {
+      margin: 0.5rem 0 0.25rem;
+      font-size: clamp(1.8rem, 3vw, 2.4rem);
+      text-shadow: 0 3px 8px rgba(0,0,0,0.4);
+    }
+
+    .subtitle {
+      max-width: 640px;
+      margin: 0 auto;
+      font-size: 0.95rem;
+      opacity: 0.95;
+    }
+
+    .garland {
+      display: flex;
+      justify-content: center;
+      gap: 0.2rem;
+      font-size: 1.2rem;
+      filter: drop-shadow(0 3px 4px rgba(0,0,0,0.5));
+    }
+
+    .tree-line {
+      margin-top: 0.5rem;
+      font-size: 1.4rem;
+    }
+
+    .calendar-wrapper {
+      background: linear-gradient(145deg, rgba(255,255,255,0.16), rgba(0,0,0,0.25));
+      border-radius: 1.5rem;
+      padding: 1.5rem;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.45);
+      border: 1px solid rgba(255,255,255,0.25);
+      backdrop-filter: blur(6px);
+    }
+
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(80px, 110px));
+      gap: 1rem;
+    }
+
+    .door {
+      position: relative;
+      padding: 0.9rem 0.6rem;
+      border-radius: 1rem;
+      background: radial-gradient(circle at 20% 0%, #ffffff 0, #ffe0b2 20%, #c62828 100%);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.45);
+      cursor: pointer;
+      text-align: center;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease, background 0.3s ease;
+      overflow: hidden;
+      border: 2px solid rgba(255,255,255,0.7);
+    }
+
+    .door::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle at 10% 0%, rgba(255,255,255,0.8) 0, transparent 50%),
+                        radial-gradient(circle at 90% 100%, rgba(255,255,255,0.3) 0, transparent 55%);
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .door-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .door.locked {
+      background: radial-gradient(circle at 20% 0%, #eceff1 0, #cfd8dc 25%, #455a64 100%);
+      cursor: not-allowed;
+      filter: grayscale(0.1) brightness(0.9);
+    }
+
+    .door.open {
+      background: radial-gradient(circle at 20% 0%, #ffffff 0, #e8f5e9 25%, #1b5e20 100%);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.55);
+    }
+
+    .door:hover:not(.locked) {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 10px 22px rgba(0,0,0,0.6);
+    }
+
+    .door-number {
+      font-size: 1.6rem;
+      font-weight: 800;
+      margin-bottom: 0.15rem;
+      text-shadow: 0 2px 5px rgba(0,0,0,0.6);
+    }
+
+    .door-icon {
+      font-size: 1.2rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .door-label {
+      font-size: 0.8rem;
+      opacity: 0.9;
+    }
+
+    .door.locked .door-label {
+      opacity: 0.8;
+    }
+
+    .door.open .door-label {
+      font-weight: 600;
+    }
+
+    .door-content {
+      display: none;
+      margin-top: 0.45rem;
+      padding-top: 0.45rem;
+      border-top: 1px dashed rgba(255,255,255,0.5);
+      font-size: 0.8rem;
+      text-align: left;
+      max-height: 130px;
+      overflow-y: auto;
+    }
+
+    .door.open .door-content {
+      display: block;
+    }
+
+    .countdown {
+      margin-top: 0.25rem;
+      font-size: 0.7rem;
+      color: #ffeb3b;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    }
+
+    .footer {
+      margin-top: 1.4rem;
+      font-size: 0.85rem;
+      opacity: 0.9;
+      max-width: 520px;
+      text-align: center;
+    }
+
+    .reset-btn {
+      margin-top: 1rem;
+      padding: 0.45rem 1rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.7);
+      background: rgba(0,0,0,0.25);
+      color: #fff;
+      cursor: pointer;
+      font-size: 0.8rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      backdrop-filter: blur(4px);
+    }
+
+    .reset-btn:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      transform: translateY(-1px);
+    }
+
+    @media (max-width: 800px) {
+      .calendar {
+        grid-template-columns: repeat(4, minmax(70px, 1fr));
+      }
+    }
+
+    @media (max-width: 520px) {
+      .calendar {
+        grid-template-columns: repeat(3, minmax(70px, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="garland" aria-hidden="true">
+      ✨💡✨💡✨💡✨💡✨
+    </div>
+    <h1>🎄 Weihnachtlicher Adventskalender 🎄</h1>
+    <p class="subtitle">
+      Alle 24 Türen sind bereits zu sehen – <strong>Tür 1</strong> kannst du sofort öffnen.
+      Jede weitere Tür öffnet sich frühestens <strong>24 Stunden nach dem Öffnen der vorherigen Tür</strong>.
+    </p>
+    <div class="tree-line" aria-hidden="true">🎁 🎄 ⭐ 🎄 🎁</div>
+  </div>
+
+  <div class="calendar-wrapper">
+    <div id="calendar" class="calendar"></div>
+  </div>
+
+  <div class="footer">
+    Dein Fortschritt wird in diesem Browser gespeichert. Wenn du den Kalender neu starten möchtest,
+    kannst du ihn zurücksetzen.
+    <br>
+    <button id="reset" class="reset-btn">🔁 Kalender zurücksetzen</button>
+  </div>
+
+  <script>
+    // Einstellungen
+    const NUM_DOORS = 24;
+    const HOURS_DELAY = 24; // 24 Stunden Abstand
+    const STORAGE_KEY = "advent_calendar_xmas_v1";
+
+    // Platzhalter-Aufgaben: Hier kannst du später deine echten Inhalte einfügen
+    const TASKS = Array.from({ length: NUM_DOORS }, (_, i) =>
+      `Tür ${i + 1}: Hier kannst du deine weihnachtliche Aufgabe einfügen (Text, Link, Audio, Video, PDF usw.).`
+    );
+
+    function loadState() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) return { lastOpened: -1, lastOpenedAt: null };
+      try {
+        const parsed = JSON.parse(saved);
+        if (typeof parsed.lastOpened !== "number") throw new Error();
+        return parsed;
+      } catch (e) {
+        return { lastOpened: -1, lastOpenedAt: null };
+      }
+    }
+
+    function saveState(state) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    let state = loadState();
+
+    function canOpen(index) {
+      // Tür 1 (Index 0) ist immer öffnungsbereit
+      if (index === 0) return true;
+
+      // Bereits geöffnete Türen bleiben offen
+      if (index <= state.lastOpened) return true;
+
+      // Nur die direkt nächste Tür prüfen
+      if (index === state.lastOpened + 1 && state.lastOpenedAt != null) {
+        const now = Date.now();
+        const needed = HOURS_DELAY * 60 * 60 * 1000;
+        return now - state.lastOpenedAt >= needed;
+      }
+
+      return false;
+    }
+
+    function getRemainingTimeMs() {
+      if (state.lastOpenedAt == null) return null;
+      const now = Date.now();
+      const needed = HOURS_DELAY * 60 * 60 * 1000;
+      const remaining = state.lastOpenedAt + needed - now;
+      return remaining > 0 ? remaining : 0;
+    }
+
+    function formatDuration(ms) {
+      const totalSeconds = Math.floor(ms / 1000);
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+      return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+    }
+
+    function renderCalendar() {
+      const container = document.getElementById("calendar");
+      container.innerHTML = "";
+
+      for (let i = 0; i < NUM_DOORS; i++) {
+        const door = document.createElement("div");
+        door.className = "door";
+
+        const isUnlocked = canOpen(i);
+        const isOpen = i <= state.lastOpened;
+
+        if (!isUnlocked) door.classList.add("locked");
+        if (isOpen) door.classList.add("open");
+
+        const inner = document.createElement("div");
+        inner.className = "door-inner";
+
+        const icon = document.createElement("div");
+        icon.className = "door-icon";
+        icon.textContent = i % 3 === 0 ? "🎄" : i % 3 === 1 ? "🎁" : "🔔";
+
+        const number = document.createElement("div");
+        number.className = "door-number";
+        number.textContent = i + 1;
+
+        const label = document.createElement("div");
+        label.className = "door-label";
+        if (isOpen) {
+          label.textContent = "geöffnet";
+        } else if (isUnlocked) {
+          label.textContent = "klick zum Öffnen";
+        } else {
+          label.textContent = "noch verschlossen";
+        }
+
+        const content = document.createElement("div");
+        content.className = "door-content";
+        content.textContent = TASKS[i];
+
+        inner.appendChild(icon);
+        inner.appendChild(number);
+        inner.appendChild(label);
+
+        // Countdown nur bei der nächsten Tür anzeigen
+        if (!isUnlocked && i === state.lastOpened + 1 && state.lastOpenedAt != null) {
+          const countdown = document.createElement("div");
+          countdown.className = "countdown";
+          countdown.dataset.countdownFor = i;
+          countdown.textContent = "Noch: --:--:--";
+          inner.appendChild(countdown);
+        }
+
+        door.appendChild(inner);
+        door.appendChild(content);
+
+        door.addEventListener("click", () => {
+          if (!canOpen(i)) return;
+
+          if (i === state.lastOpened + 1) {
+            state.lastOpened = i;
+            state.lastOpenedAt = Date.now();
+            saveState(state);
+          }
+
+          door.classList.add("open");
+          renderCalendar();
+        });
+
+        container.appendChild(door);
+      }
+    }
+
+    function startCountdown() {
+      setInterval(() => {
+        const remaining = getRemainingTimeMs();
+        const countdowns = document.querySelectorAll("[data-countdown-for]");
+
+        countdowns.forEach(elem => {
+          if (remaining == null || remaining <= 0) {
+            elem.textContent = "Die nächste Tür öffnet sich gleich …";
+          } else {
+            elem.textContent = "Noch: " + formatDuration(remaining);
+          }
+        });
+      }, 1000);
+    }
+
+    function resetCalendar() {
+      localStorage.removeItem(STORAGE_KEY);
+      state = loadState();
+      renderCalendar();
+    }
+
+    document.getElementById("reset").addEventListener("click", () => {
+      if (confirm("Möchtest du den Adventskalender wirklich zurücksetzen?")) {
+        resetCalendar();
+      }
+    });
+
+    // Initialisierung
+    renderCalendar();
+    startCountdown();
+  </script>
+</body>
+</html>
